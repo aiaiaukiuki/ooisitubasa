@@ -12,14 +12,14 @@
                     $user = 'tb-2****5';
                     $password = 'password';
                     $pdo = new PDO($dsn, $user, $password, array(PDO::ATTR_ERRMODE => PDO::ERRMODE_WARNING));
-    
+        
                     $sql = "CREATE TABLE IF NOT EXISTS tbkeijiban"
                             ." ("
                             . "id INT AUTO_INCREMENT PRIMARY KEY,"
                             . "name char(32),"
                             . "comment TEXT"
-                            ."pass TEXT,"
-                            ."date"
+                            ."pass,"
+                            ."comtime TEXT"
                             .");";
                     $stmt = $pdo->query($sql);
     
@@ -30,13 +30,22 @@
         
         if( isset( $name )  and isset ( $comment ) and $pass != "" and empty( $_POST["hid"]))
                 {
-                    $sql = $pdo -> prepare("INSERT INTO tbtest (name, comment, pass, date) VALUES (:name, :comment, :pass, :date)");
+                    $sql = $pdo -> prepare("INSERT INTO tbkeijiban (name, comment, pass, comtime) VALUES (:name, :comment, :pass, :comtime)");
                     $sql -> bindParam(':name', $name, PDO::PARAM_STR);
                     $sql -> bindParam(':comment', $comment, PDO::PARAM_STR);
                     $sql -> bindParam(':pass', $pass, PDO::PARAM_STR);
-                    $sql -> bindParam(':date', $date, PDO::PARAM_STR);
+                    $sql -> bindParam(':comtime', $date, PDO::PARAM_STR);
                     $sql -> execute();
                                 echo "弾幕は火力だ‼"."<br>"."<br>";
+                    
+                    if(empty( $name ) or empty( $comment ) or empty( $pass ))
+                        {//エラー対策のための条件分岐
+
+                        }
+                    elseif($name != "" && $comment != "" && $pass != "")
+                        {//条件分岐 (フォーム"str" "name"が空欄=false 投稿削除処理を行った際、この分岐がなければ空欄の行が追加されてしまう)
+                            echo $comment." を受け付けました。<br><br>";
+                        }
                 }
                 
             //削除フォーム    
@@ -44,14 +53,34 @@
                 {
                             $dnumber = $_POST["dnumber"];
                             $dpass = $_POST["dpass"];
-                    if($dnumber = $row[0] && $dpass = $row[3])
-                    {
-                            $id = $dnumber;
-                            $sql = 'delete from tbkeijiban where id=:id';
-                            $stmt = $pdo->prepare($sql);
-                            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-                            $stmt->execute();
-                    }
+                            
+                            $sql = 'SELECT * FROM tbkeijiban';
+                            $stmt = $pdo->query($sql);
+                            $results = $stmt->fetchAll();
+
+                             foreach ($results as $row)
+                                {
+                                    echo "werew";
+                                        if( $row[0] == $dnumber )
+                                        {
+                                            if( $row[3] = $dpass)
+                                            {
+                                            $id = $dnumber;
+                                            $sql = "delete from tbkeijiban where id=:id";
+                                            $stmt = $pdo->prepare($sql);
+                                            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+                                            $stmt->execute();
+                                            }
+                                        elseif( $row[3] != $dpass)
+                                             {
+                                                 echo "ちゃうねん2";
+                                             }
+                   
+
+                                        }
+
+                                }
+
                 }
             //編集フォーム    
             elseif( isset( $_POST["enumber"] ) && isset( $_POST["epass"] ) )
@@ -60,16 +89,17 @@
                     $enumber = $_POST["enumber"]; 
                     $epass = $_POST["epass"];
                     
+                    $sql = 'SELECT * FROM tbkeijiban';
+            $stmt = $pdo->query($sql);
+            $results = $stmt->fetchAll();
                         foreach($results as $row)
                             {
-                                $liner2=explode("<>",$liner1);
-                            
-                                
                                     if(  $row[0] == $enumber && $row[3] == $epass )
                                         {
                                           
                                                     $newname = $row[1];
                                                     $newcom = $row[2];
+                                                    echo "wer";
                                         }
                                     else
                                     {
@@ -137,7 +167,7 @@
                     echo $row['name'].',';
                     echo $row['comment'].",";
                     echo $row["pass"].",";
-                    echo $row["date"].'<br>';
+                    echo $row["comtime"].'<br>';
                     echo "<hr>";
                     }
         ?>    
