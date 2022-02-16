@@ -8,9 +8,9 @@
         <?php
         
         error_reporting(0);
-                    $dsn = 'mysql:dbname=tb230955db;host=localhost';
-                    $user = 'tb-230955';
-                    $password = 'fVdnaH47zS';
+                    $dsn = 'mysql:dbname=tb2*****db;host=localhost';
+                    $user = 'tb-2****5';
+                    $password = 'password';
                     $pdo = new PDO($dsn, $user, $password, array(PDO::ATTR_ERRMODE => PDO::ERRMODE_WARNING));
     
                     $sql = "CREATE TABLE IF NOT EXISTS tbkeijiban"
