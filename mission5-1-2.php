@@ -8,17 +8,17 @@
         <?php
         
         error_reporting(0);
-                    $dsn = 'mysql:dbname=tb2*****db;host=localhost';
-                    $user = 'tb-2****5';
-                    $password = 'password';
+                    $dsn = 'mysql:dbname=***********;host=localhost';
+                    $user = '***********';
+                    $password = '***********';
                     $pdo = new PDO($dsn, $user, $password, array(PDO::ATTR_ERRMODE => PDO::ERRMODE_WARNING));
-        
-                    $sql = "CREATE TABLE IF NOT EXISTS tbkeijiban"
+    
+                    $sql = "CREATE TABLE IF NOT EXISTS tbkeijiban1"
                             ." ("
                             . "id INT AUTO_INCREMENT PRIMARY KEY,"
                             . "name char(32),"
-                            . "comment TEXT"
-                            ."pass,"
+                            . "comment TEXT,"
+                            ."pass TEXT,"
                             ."comtime TEXT"
                             .");";
                     $stmt = $pdo->query($sql);
@@ -30,7 +30,7 @@
         
         if( isset( $name )  and isset ( $comment ) and $pass != "" and empty( $_POST["hid"]))
                 {
-                    $sql = $pdo -> prepare("INSERT INTO tbkeijiban (name, comment, pass, comtime) VALUES (:name, :comment, :pass, :comtime)");
+                    $sql = $pdo -> prepare("INSERT INTO tbkeijiban1 (name, comment, pass, comtime) VALUES (:name, :comment, :pass, :comtime)");
                     $sql -> bindParam(':name', $name, PDO::PARAM_STR);
                     $sql -> bindParam(':comment', $comment, PDO::PARAM_STR);
                     $sql -> bindParam(':pass', $pass, PDO::PARAM_STR);
@@ -54,30 +54,24 @@
                             $dnumber = $_POST["dnumber"];
                             $dpass = $_POST["dpass"];
                             
-                            $sql = 'SELECT * FROM tbkeijiban';
+                            $sql = 'SELECT * FROM tbkeijiban1';
                             $stmt = $pdo->query($sql);
                             $results = $stmt->fetchAll();
 
                              foreach ($results as $row)
                                 {
-                                    echo "werew";
-                                        if( $row[0] == $dnumber )
+                                        if( $row[0] == $dnumber && $row[3] == $dpass )
                                         {
-                                            if( $row[3] = $dpass)
-                                            {
+                                        
                                             $id = $dnumber;
-                                            $sql = "delete from tbkeijiban where id=:id";
+                                            $sql = "delete from tbkeijiban1 where id=:id";
                                             $stmt = $pdo->prepare($sql);
                                             $stmt->bindParam(':id', $id, PDO::PARAM_INT);
                                             $stmt->execute();
-                                            }
-                                        elseif( $row[3] != $dpass)
-                                             {
-                                                 echo "ちゃうねん2";
-                                             }
-                   
-
                                         }
+                                        else
+                                             {
+                                             }
 
                                 }
 
@@ -85,11 +79,11 @@
             //編集フォーム    
             elseif( isset( $_POST["enumber"] ) && isset( $_POST["epass"] ) )
                 {
-                    echo "aaa";
+                    echo "編集可能";
                     $enumber = $_POST["enumber"]; 
                     $epass = $_POST["epass"];
                     
-                    $sql = 'SELECT * FROM tbkeijiban';
+                    $sql = 'SELECT * FROM tbkeijiban1';
             $stmt = $pdo->query($sql);
             $results = $stmt->fetchAll();
                         foreach($results as $row)
@@ -111,25 +105,38 @@
                 
             elseif(isset($_POST["name"]) && isset($_POST["comment"]) && isset($_POST["hid"]) && isset($_POST["pass"]))
                 {
-                    $newname1 = $_POST["name"];
-                    $newcom1 = $_POST["comment"];
-                    $newpass = $_POST["pass"];
                     $num2 = $_POST["hid"];
+                    $newpass = $_POST["pass"];
                     
-                    if($row[0] = $num2)
+                    $sql = 'SELECT * FROM tbkeijiban1';
+                    $stmt = $pdo->query($sql);
+                    $results = $stmt->fetchAll();
+            
+                foreach ($results as $row)
                     {
-                        $id = $hid; //変更する投稿番号
-                        $name = $_POST["name"];
-                        $comment = $_POST["comment"]; //変更したい名前、変更したいコメントは自分で決めること
-                        $sql = 'UPDATE tbkeijiban SET name=:name,comment=:comment WHERE id=:id';
-                        $stmt = $pdo->prepare($sql);
-                        $stmt->bindParam(':name', $newname1, PDO::PARAM_STR);
-                        $stmt->bindParam(':comment', $newcom1, PDO::PARAM_STR);
-                        $stmt->bindParam(':pass', $newpasspass, PDO::PARAM_STR);
-                        $stmt->bindParam(':date', $date, PDO::PARAM_STR);
-                        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-                        $stmt->execute();
+                         if($row[0] == $num2 &&$row[3] = $newpass)
+                        {
+                            echo "tus";
+                            $id = $num2; 
+                            $newname2 = $_POST["name"];
+                            $newcom2 = $_POST["comment"];
+                            $newpass = $_POST["pass"];
+                            $sql = 'UPDATE tbkeijiban1 SET name=:name,comment=:comment, pass = :pass, comtime = :comtime WHERE id=:id';
+                            $stmt = $pdo->prepare($sql);
+                            $stmt->bindParam(':name', $newname2, PDO::PARAM_STR);
+                            $stmt->bindParam(':comment', $newcom2, PDO::PARAM_STR);
+                            $stmt->bindParam(':pass', $newpass, PDO::PARAM_STR);
+                            $stmt->bindParam(':comtime', $date, PDO::PARAM_STR);
+                            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+                            $stmt->execute();
+                        }
+                    else
+                        {
+                            
+                        }
                     }
+                    
+                   
                 }  
             
         ?>
@@ -156,7 +163,7 @@
         </form>
         
         <?php
-            $sql = 'SELECT * FROM tbkeijiban';
+            $sql = 'SELECT * FROM tbkeijiban1';
             $stmt = $pdo->query($sql);
             $results = $stmt->fetchAll();
             
